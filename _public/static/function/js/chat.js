@@ -1347,7 +1347,7 @@
 
   async function loadModels() {
     if (!modelDropdown) return;
-    const fallback = ['grok-4.1-fast', 'grok-4', 'grok-3', 'grok-3-mini', 'grok-3-thinking', 'grok-4.20-beta', 'grok-imagine-1.0-fast'];
+    const fallback = ['grok-4.1-fast', 'grok-4', 'grok-3', 'grok-3-mini', 'grok-3-thinking', 'grok-4.20-beta', 'grok-imagine-1.0-fast', 'grok-imagine-1.0', 'grok-imagine-1.0-edit'];
     const preferred = 'grok-4.20-beta';
     try {
       const res = await fetch('/v1/models', { cache: 'no-store' });
@@ -1360,7 +1360,7 @@
         .filter((id) => {
           const name = String(id);
           if (name.startsWith('grok-imagine')) {
-            return name === 'grok-imagine-1.0-fast';
+            return true;
           }
           return !name.includes('video');
         });
