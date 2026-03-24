@@ -343,7 +343,9 @@ class ImageStreamProcessor(BaseProcessor):
                         try:
                             card_data = orjson.loads(raw)
                             original_url = card_data.get("image", {}).get("original")
-                            if original_url and original_url not in urls_to_process:
+                            if (original_url 
+                                and original_url.startswith("https://assets.grok.com/") 
+                                and original_url not in urls_to_process):
                                 urls_to_process.append(original_url)
                         except Exception:
                             pass
@@ -354,7 +356,9 @@ class ImageStreamProcessor(BaseProcessor):
                         try:
                             card_data = orjson.loads(json_data)
                             original_url = card_data.get("image", {}).get("original")
-                            if original_url and original_url not in urls_to_process:
+                            if (original_url 
+                                and original_url.startswith("https://assets.grok.com/") 
+                                and original_url not in urls_to_process):
                                 urls_to_process.append(original_url)
                         except Exception:
                             pass
@@ -529,7 +533,9 @@ class ImageCollectProcessor(BaseProcessor):
                         try:
                             card_data = orjson.loads(raw)
                             original_url = card_data.get("image", {}).get("original")
-                            if original_url and original_url not in urls_to_process:
+                            if (original_url 
+                                and original_url.startswith("https://assets.grok.com/") 
+                                and original_url not in urls_to_process):
                                 urls_to_process.append(original_url)
                         except Exception:
                             pass
@@ -540,7 +546,9 @@ class ImageCollectProcessor(BaseProcessor):
                         try:
                             card_data = orjson.loads(json_data)
                             original_url = card_data.get("image", {}).get("original")
-                            if original_url and original_url not in urls_to_process:
+                            if (original_url 
+                                and original_url.startswith("https://assets.grok.com/") 
+                                and original_url not in urls_to_process):
                                 urls_to_process.append(original_url)
                         except Exception:
                             pass
