@@ -291,7 +291,7 @@ class ImageGenerationService:
             model=model_info.grok_model,
             mode=model_info.model_mode,
             stream=True,
-            tool_overrides={"imageGen": True},
+            tool_overrides=None,
             request_overrides=self._app_chat_request_overrides(n, enable_nsfw),
         )
         processor = AppChatImageStreamProcessor(
@@ -320,7 +320,7 @@ class ImageGenerationService:
         response_format: str,
         enable_nsfw: Optional[bool] = None,
     ) -> ImageGenerationResult:
-        per_call = min(max(1, n), 2)
+        per_call = 1
         calls_needed = max(1, int(math.ceil(n / per_call)))
 
         async def _call_generate(call_target: int) -> List[str]:
@@ -330,7 +330,7 @@ class ImageGenerationService:
                 model=model_info.grok_model,
                 mode=model_info.model_mode,
                 stream=True,
-                tool_overrides={"imageGen": True},
+                tool_overrides=None,
                 request_overrides=self._app_chat_request_overrides(
                     call_target, enable_nsfw
                 ),

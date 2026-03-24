@@ -331,10 +331,36 @@ class ImageStreamProcessor(BaseProcessor):
                         )
                     continue
 
-                # modelResponse
+                urls_to_process = []
+
                 if mr := resp.get("modelResponse"):
                     if urls := _collect_images(mr):
-                        for url in urls:
+                        urls_to_process.extend(urls)
+                        
+                    for raw in mr.get("cardAttachmentsJson") or []:
+                        if not isinstance(raw, str) or not raw.strip():
+                            continue
+                        try:
+                            card_data = orjson.loads(raw)
+                            original_url = card_data.get("image", {}).get("original")
+                            if original_url and original_url not in urls_to_process:
+                                urls_to_process.append(original_url)
+                        except Exception:
+                            pass
+
+                if card := resp.get("cardAttachment"):
+                    json_data = card.get("jsonData")
+                    if isinstance(json_data, str) and json_data.strip():
+                        try:
+                            card_data = orjson.loads(json_data)
+                            original_url = card_data.get("image", {}).get("original")
+                            if original_url and original_url not in urls_to_process:
+                                urls_to_process.append(original_url)
+                        except Exception:
+                            pass
+
+                if urls_to_process:
+                    for url in urls_to_process:
                             if self.response_format == "url":
                                 processed = await self.process_url(url, "image")
                                 if processed:
@@ -491,9 +517,36 @@ class ImageCollectProcessor(BaseProcessor):
 
                 resp = data.get("result", {}).get("response", {})
 
+                urls_to_process = []
+
                 if mr := resp.get("modelResponse"):
                     if urls := _collect_images(mr):
-                        for url in urls:
+                        urls_to_process.extend(urls)
+                        
+                    for raw in mr.get("cardAttachmentsJson") or []:
+                        if not isinstance(raw, str) or not raw.strip():
+                            continue
+                        try:
+                            card_data = orjson.loads(raw)
+                            original_url = card_data.get("image", {}).get("original")
+                            if original_url and original_url not in urls_to_process:
+                                urls_to_process.append(original_url)
+                        except Exception:
+                            pass
+
+                if card := resp.get("cardAttachment"):
+                    json_data = card.get("jsonData")
+                    if isinstance(json_data, str) and json_data.strip():
+                        try:
+                            card_data = orjson.loads(json_data)
+                            original_url = card_data.get("image", {}).get("original")
+                            if original_url and original_url not in urls_to_process:
+                                urls_to_process.append(original_url)
+                        except Exception:
+                            pass
+
+                if urls_to_process:
+                    for url in urls_to_process:
                             if self.response_format == "url":
                                 processed = await self.process_url(url, "image")
                                 if processed:

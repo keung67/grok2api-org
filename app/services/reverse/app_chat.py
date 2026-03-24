@@ -136,15 +136,14 @@ class AppChatReverse:
             "forceConcise": False,
             "forceSideBySide": False,
             "imageAttachments": [],
-            "imageGenerationCount": 2,
+            "imageGenerationCount": 1,
             "isAsyncChat": False,
             "isReasoning": False,
             "message": message,
             "modelMode": mode,
             "modelName": model,
-            "responseMetadata": {
-                "requestModelDetails": {"modelId": model},
-            },
+            "modeId": mode or "auto",
+            "responseMetadata": {},
             "returnImageBytes": False,
             "returnRawGrokInXaiRequest": False,
             "sendFinalMetadata": True,
@@ -232,8 +231,6 @@ class AppChatReverse:
                 request_overrides=request_overrides,
             )
             payload_summary = {
-                "model": payload.get("modelName"),
-                "mode": payload.get("modelMode"),
                 "message_len": payload.get("message") or "",
                 "file_attachments": len(payload.get("fileAttachments") or []),
                 "custom_personality_len": len(payload.get("customPersonality") or ""),
