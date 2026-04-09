@@ -17,7 +17,7 @@ from app.core.logger import logger
 from app.core.storage import DATA_DIR
 from app.core.exceptions import AppException, ErrorType, UpstreamException
 from app.services.grok.utils.process import BaseProcessor
-from app.services.grok.utils.retry import pick_token, rate_limited
+from app.services.grok.utils.retry import pick_token, rate_limited, soft_image_limit
 from app.services.grok.utils.response import make_response_id, make_chat_chunk, wrap_image_content
 from app.services.grok.utils.stream import wrap_stream_with_usage
 from app.services.grok.services.chat import GrokChatService
@@ -143,6 +143,14 @@ class ImageGenerationService:
                         return
                     except UpstreamException as e:
                         last_error = e
+                        if soft_image_limit(e):
+                            if yielded:
+                                raise
+                            logger.warning(
+                                f"Token {current_token[:10]}... image soft limit (empty result), "
+                                f"trying next token (attempt {attempt + 1}/{max_token_retries})"
+                            )
+                            continue
                         if rate_limited(e):
                             if yielded:
                                 raise
@@ -197,7 +205,7 @@ class ImageGenerationService:
                         enable_nsfw=enable_nsfw,
                     )
                 except UpstreamException as app_chat_error:
-                    if rate_limited(app_chat_error):
+                    if rate_limited(app_chat_error) or soft_image_limit(app_chat_error):
                         raise
                     logger.warning(
                         "App-chat image collect failed, falling back to ws_imagine: %s",
@@ -216,6 +224,12 @@ class ImageGenerationService:
                     )
             except UpstreamException as e:
                 last_error = e
+                if soft_image_limit(e):
+                    logger.warning(
+                        f"Token {current_token[:10]}... image soft limit (empty result), "
+                        f"trying next token (attempt {attempt + 1}/{max_token_retries})"
+                    )
+                    continue
                 if rate_limited(e):
                     await token_mgr.mark_rate_limited(current_token)
                     logger.warning(
@@ -375,8 +389,8 @@ class ImageGenerationService:
 
         if not all_images:
             raise UpstreamException(
-                "Image generation returned no results",
-                details={"error": "empty_result", "path": "app_chat"},
+                "Image generation returned no results (possible image soft rate limit)",
+                details={"error_code": "empty_image_result", "path": "app_chat"},
             )
 
         try:

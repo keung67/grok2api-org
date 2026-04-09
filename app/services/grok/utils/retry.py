@@ -46,6 +46,19 @@ def rate_limited(error: Exception) -> bool:
     return status == 429 or code == "rate_limit_exceeded"
 
 
+def soft_image_limit(error: Exception) -> bool:
+    """Detect soft image rate limit: upstream returned 200 but no image was produced.
+
+    Unlike ``rate_limited``, this does NOT call ``mark_rate_limited`` — the
+    token is still usable for text chat; it is only skipped for the current
+    image generation attempt.
+    """
+    if not isinstance(error, UpstreamException):
+        return False
+    code = error.details.get("error_code") if error.details else None
+    return code == "empty_image_result"
+
+
 def transient_upstream(error: Exception) -> bool:
     """Whether error is likely transient and safe to retry with another token."""
     if not isinstance(error, UpstreamException):
@@ -66,4 +79,4 @@ def transient_upstream(error: Exception) -> bool:
     return any(marker in err for marker in timeout_markers)
 
 
-__all__ = ["pick_token", "rate_limited", "transient_upstream"]
+__all__ = ["pick_token", "rate_limited", "soft_image_limit", "transient_upstream"]

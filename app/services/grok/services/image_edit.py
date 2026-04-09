@@ -460,15 +460,12 @@ class ImageStreamProcessor(BaseProcessor):
                     self._response_id = make_response_id()
                     self._id_generated = True
                 if not emitted_chat_chunk:
-                    yield self._sse(
-                        "chat.completion.chunk",
-                        make_chat_chunk(
-                            self._response_id,
-                            self.model,
-                            "",
-                            index=0,
-                            is_final=True,
-                        ),
+                    # No image was produced — signal soft image limit so the
+                    # outer retry loop can switch to the next token instead of
+                    # returning an empty response to the client.
+                    raise UpstreamException(
+                        "Image stream produced no images (possible image soft rate limit)",
+                        details={"error_code": "empty_image_result", "path": "app_chat_stream"},
                     )
                 yield "data: [DONE]\n\n"
         except asyncio.CancelledError:
