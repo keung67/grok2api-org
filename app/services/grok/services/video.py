@@ -903,7 +903,7 @@ class VideoService:
         stream: bool = None,
         reasoning_effort: str | None = None,
         aspect_ratio: str = "3:2",
-        video_length: int = 6,
+        video_length: int = 10,
         resolution: str = "480p",
         preset: str = "normal",
     ):
@@ -925,8 +925,6 @@ class VideoService:
 
         for attempt in range(max_token_retries):
             pool_candidates = ModelService.pool_candidates_for_model(model)
-            
-            fetch_length = 10 if video_length < 10 else video_length
             token_info = token_mgr.get_token_for_video(
                 resolution=resolution,
                 video_length=video_length,
