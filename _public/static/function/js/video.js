@@ -303,7 +303,7 @@
         image_urls: imageUrls,
         reasoning_effort: DEFAULT_REASONING_EFFORT,
         aspect_ratio: ratioSelect ? ratioSelect.value : '3:2',
-        video_length: lengthSelect ? parseInt(lengthSelect.value, 10) : 6,
+        video_length: lengthSelect ? parseInt(lengthSelect.value, 10) : 10,
         resolution_name: resolutionSelect ? resolutionSelect.value : '480p',
         preset: presetSelect ? presetSelect.value : 'normal'
       })
