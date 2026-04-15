@@ -925,6 +925,7 @@ class VideoService:
 
         for attempt in range(max_token_retries):
             pool_candidates = ModelService.pool_candidates_for_model(model)
+            
             fetch_length = 10 if video_length < 10 else video_length
             token_info = token_mgr.get_token_for_video(
                 resolution=resolution,
